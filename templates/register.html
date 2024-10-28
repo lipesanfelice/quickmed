@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro{% endblock %}
+
+{% block content %}
+    <div id="registerPage">
+        <form id="registerForm">
+            <div class="titulo">
+                <h1>Registro</h1>
+                <div class="barra-horizontal"></div>
+            </div>
+            <div class="campo-input">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" required />
+            </div>
+            <div class="campo-input">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required />
+            </div>
+            <div class="campo-input">
+                <label for="senha">Senha:</label>
+                <input type="password" id="senha" required />
+            </div>
+            <button type="submit">Registrar</button>
+        </form>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+
+    $('#registerForm').submit(function(event) {
+        event.preventDefault();
+        const nome = $('#nome').val();
+        const email = $('#email').val();
+        const senha = $('#senha').val();
+
+        $.ajax({
+            url: '/register',
+            type: 'POST',
+            contentType: 'application/json',  // Ensure the Content-Type is JSON
+            data: JSON.stringify({ nome, email, senha }),  // Send data as JSON string
+            success: function(response) {
+                alert(response.message);
+                if (response.message === 'Usuário registrado com sucesso!') {
+                    window.location.href = '{{ url_for("login") }}';  // Redirect to login page on success
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 400) {
+                    alert('Email já cadastrado!');  // Display message if email is already taken
+                } else {
+                    alert('Erro ao registrar!');
+                }
+            }
+        });
+    });
+
+</script>
+{% endblock %}

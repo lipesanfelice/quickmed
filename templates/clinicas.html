@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+
+{% block title %}Adicionar Clínica{% endblock %}
+
+{% block content %}
+    <style>
+
+        #adicionar-clinica-form {
+            width: 120%; /* Ajusta a largura do formulário */
+            max-width: 1200px; /* Limite máximo */
+            padding: 30px;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        #form-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Duas colunas */
+            gap: 15px; /* Espaço entre os campos */
+        }
+    </style>
+
+
+    <form id="adicionar-clinica-form" method="POST">
+        <div class="titulo">
+            <h1>Adicionar Clínica</h1>
+            <div class="barra-horizontal"></div>
+        </div>
+
+        <div id="form-content">
+            <div class="campo-input">
+                <label for="nomeClinica">Nome:</label>
+                <input type="text" id="nomeClinica" required />
+            </div>
+            <div class="campo-input">
+                <label for="descricao">Descrição:</label>
+                <textarea id="descricao"></textarea>
+            </div>
+            <div class="campo-input">
+                <label for="telefone">Telefone:</label>
+                <input type="text" id="telefone" />
+            </div>
+            <div class="campo-input">
+                <label for="emailClinica">Email:</label>
+                <input type="email" id="emailClinica" />
+            </div>
+            <div class="campo-input">
+                <label for="endereco">Endereço:</label>
+                <input type="text" id="endereco" />
+            </div>
+            <div class="campo-input">
+                <label for="latitude">Latitude:</label>
+                <input type="text" id="latitude" />
+            </div>
+            <div class="campo-input">
+                <label for="longitude">Longitude:</label>
+                <input type="text" id="longitude" />
+            </div>
+            <div class="campo-input">
+                <label for="tipo">Tipo:</label>
+                <select id="tipo">
+                    <option value="veterinário">Veterinário</option>
+                    <option value="médico">Médico</option>
+                </select>
+            </div>
+            <div class="campo-input">
+                <label for="avaliacao">Avaliação:</label>
+                <input type="number" id="avaliacao" min="0" max="5" step="0.1" />
+            </div>
+            <div class="campo-input">
+                <label for="horario">Horário de Funcionamento:</label>
+                <input type="text" id="horario" />
+            </div>
+        </div>
+
+        <button type="submit">Adicionar Clínica</button>
+    </form>
+
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+   
+
+    $('#adicionar-clinica-form').submit(function(event) {
+        event.preventDefault(); // Evita a atualização da página
+    
+        // Coleta os dados do formulário
+        const data = {
+            nome: $('#nomeClinica').val(),
+            descricao: $('#descricao').val(),
+            telefone: $('#telefone').val(),
+            email: $('#emailClinica').val(),
+            endereco: $('#endereco').val(),
+            latitude: $('#latitude').val(),
+            longitude: $('#longitude').val(),
+            tipo: $('#tipo').val(),
+            avaliacao: $('#avaliacao').val(),
+            horario: $('#horario').val()
+        };
+    
+        // Envia os dados usando AJAX
+        $.ajax({
+            url: '/clinicas',  // URL correta para envio
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                alert(response.message); // Exibe a mensagem de sucesso
+                window.location.href = '{{ url_for("map") }}'; // Redireciona para o mapa
+            },
+            error: function(xhr) {
+                alert('Erro ao adicionar clínica!'); // Exibe mensagem de erro
+            }
+        });
+    });
+    
+    
+</script>
+{% endblock %}
