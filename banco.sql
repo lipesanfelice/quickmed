@@ -31,9 +31,53 @@ CREATE TABLE Clinica_Servico (
 );
 
 -- Tabela Usuarios
-CREATE TABLE Usuarios (
+CREATE TABLE usuario (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    nome VARCHAR(100) NOT NULL,
-    email VARCHAR(55) UNIQUE NOT NULL,
+    nome VARCHAR(255) NOT NULL,
+    sobrenome VARCHAR(255),
+    email VARCHAR(255) UNIQUE NOT NULL,
     senha VARCHAR(255) NOT NULL,
+    data_nascimento DATE,
+    genero ENUM('Masculino', 'Feminino', 'Outro'),
+    telefone VARCHAR(20),
+    endereco VARCHAR(255)
+);
+
+-- Tabela Informacoes_Medicas
+CREATE TABLE Informacoes_Medicas (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    tipo_sanguineo ENUM('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-') NOT NULL,
+    comorbidades TEXT,          
+    alergias TEXT,              
+    medicamentos TEXT,          
+    historico_familiar TEXT,    
+    observacoes TEXT,           
+    FOREIGN KEY (id_usuario) REFERENCES Usuarios(id) ON DELETE CASCADE
+);
+
+
+-- Tabela Pets
+CREATE TABLE Pets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    nome VARCHAR(100) NOT NULL,
+    especie ENUM('cachorro', 'gato', 'pássaro', 'réptil', 'outro') NOT NULL,
+    raca VARCHAR(100),
+    data_nascimento DATE,
+    sexo ENUM('M', 'F'),
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id) ON DELETE CASCADE
+);
+
+-- Tabela Informacoes_Medicas_Pets
+CREATE TABLE Informacoes_Medicas_Pets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_pet INT NOT NULL,
+    tipo_sanguineo ENUM('A', 'B', 'AB', 'O') DEFAULT NULL,
+    alergias TEXT,               -- Descrição de alergias
+    doencas_cronicas TEXT,       -- Doenças crônicas do pet
+    medicamentos TEXT,           -- Lista de medicamentos em uso
+    historico_vacinas TEXT,      -- Histórico de vacinas
+    observacoes TEXT,            -- Campo para anotações adicionais
+    FOREIGN KEY (id_pet) REFERENCES Pets(id) ON DELETE CASCADE
 );

@@ -3,9 +3,11 @@
 {% block title %}Logout{% endblock %}
 
 {% block content %}
-<div class="container text-center mt-5">
-    <h1>Você saiu da sua conta</h1>
-    <p>Esperamos vê-lo novamente em breve!</p>
-    <a href="{{ url_for('login') }}" class="btn btn-primary mt-3">Voltar para Login</a>
-</div>
+<form id="logoutForm">
+    <div class="text-center mt-5">
+        <h1>Você saiu da sua conta</h1>
+        <p>Esperamos vê-lo novamente em breve!</p>
+        <button href="{{ url_for('login') }}" class="btn btn-primary mt-3">Voltar para Login</button>
+    </div>
+</form>
 {% endblock %}

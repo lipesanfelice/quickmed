@@ -1,7 +1,7 @@
 from flask import Flask, render_template, jsonify, request, redirect, url_for, session
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import LoginManager, login_required, login_user, logout_user, current_user
-from models import db, usuario, Clinica
+from models import db, usuario, Clinica, Informacoes_Medicas, Informacoes_Pet
 from routes import routes_app
 import os
 
@@ -40,7 +40,18 @@ def login():
         # Verifica a senha com uma comparação simples
         if user and user.senha == senha:
             login_user(user)  # Autentica o usuário
-            session['usuario'] = user.email  # Salva o e-mail na sessão
+            # Supondo que `user` seja o objeto retornado pela consulta ao banco de dados.
+            session['usuario'] = {
+                'id': user.id,
+                'nome': user.nome,
+                'sobrenome': user.sobrenome,
+                'email': user.email,
+                'data_nascimento': user.data_nascimento,
+                'genero': user.genero,
+                'telefone': user.telefone,
+                'endereco': user.endereco
+            }
+
             return jsonify({'message': 'Login realizado com sucesso!'}), 200
 
         return jsonify({'message': 'Credenciais inválidas!'}), 401
@@ -79,11 +90,6 @@ def get_clinicas():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# Página da conta do usuário
-@app.route('/account')
-@login_required
-def account():
-    return render_template('account.html', usuario=session.get('usuario'))
 
 # Função de logout
 @app.route('/logout')
@@ -94,7 +100,7 @@ def logout():
     return render_template('logout.html')
 
 # Função para adicionar uma clínica ao banco (Blueprint)
-@routes_app.route('/clinicas', methods=['POST'])
+@app.route('/clinicas', methods=['POST'])
 @login_required
 def add_clinica_bd():
     data = request.json
@@ -112,8 +118,40 @@ def add_clinica_bd():
     )
     db.session.add(nova_clinica)
     db.session.commit()
-    return jsonify({'message': 'Clínica adicionada com sucesso!'}), 201
+    return jsonify({'message': 'Clínica adicionada com sucesso!'}), 201   
 
+@app.route('/usuario', methods=['GET'])
+@login_required
+def account():
+    if request.method == 'GET':
+        # Retorna as informações do usuário para preencher o formulário
+        return render_template('account.html', usuario=current_user)
+    
+@app.route('/usuario', methods=['POST'])
+@login_required
+def update_account():
+    data = request.get_json()
+    # usuario = usuario.query.get(current_user.id)  
+    usuario = current_user
+        
+    if not usuario:
+        return jsonify({"message": "Usuário não encontrado"}), 404
+        
+    usuario.nome = data.get('nome')
+    usuario.sobrenome = data.get('sobrenome')
+    usuario.email = data.get('email')
+    usuario.data_nascimento = data.get('dataNascimento')
+    usuario.genero = data.get('genero')
+    usuario.telefone = data.get('telefone')
+    usuario.endereco = data.get('endereco')
+        
+    try:
+        db.session.commit()
+        return jsonify({"message": "Informações atualizadas com sucesso"}), 200
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"message": "Erro ao atualizar informações"}), 500
+        
 # Registre o blueprint
 app.register_blueprint(routes_app)
 

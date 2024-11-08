@@ -3,7 +3,6 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-
 <div id="loginPage">
     <form id="loginForm">
         <div class="titulo">
@@ -24,7 +23,6 @@
         <button type="submit">Entrar</button>
         <p class="esqueceu-senha">
             Esqueceu sua senha? <a href="#" data-toggle="modal" data-target="#modalRecuperarSenha">Clique aqui!</a>
-
             Não está registrado? <a href="{{ url_for('register_page') }}">Clique aqui!</a>
         </p>
     </form>
@@ -46,13 +44,20 @@
                         <label for="emailRecuperar">Email:</label>
                         <input type="email" class="form-control" id="emailRecuperar" required>
                     </div>
-                    <button type="submit" class="btn btn-primary">Enviar</button>
+                    <div class="form-group">
+                        <label for="novaSenha">Nova Senha:</label>
+                        <input type="password" class="form-control" id="novaSenha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmarSenha">Confirmar Nova Senha:</label>
+                        <input type="password" class="form-control" id="confirmarSenha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Alterar Senha</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block scripts %}
@@ -84,12 +89,19 @@
     $('#recuperarSenhaForm').submit(function(event) {
         event.preventDefault();
         const emailRecuperar = $('#emailRecuperar').val();
+        const novaSenha = $('#novaSenha').val();
+        const confirmarSenha = $('#confirmarSenha').val();
+
+        if (novaSenha !== confirmarSenha) {
+            alert('As senhas não coincidem!');
+            return;
+        }
 
         $.ajax({
             url: '/recuperar_senha',
             type: 'POST',
             contentType: 'application/json',
-            data: JSON.stringify({ email: emailRecuperar }),
+            data: JSON.stringify({ email: emailRecuperar, senha: novaSenha }),
             success: function(response) {
                 alert(response.message);
                 $('#modalRecuperarSenha').modal('hide'); // Fecha o modal após sucesso
