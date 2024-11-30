@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div id="loginPage">
+    <form id="loginForm">
+        <div class="titulo">
+            <h1>Faça o seu login</h1>
+            <div class="barra-horizontal"></div>
+        </div>
+        <div class="campo-input">
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+        </div>
+        <div class="campo-input">
+            <label for="senha">Senha:</label>
+            <input type="password" id="senha" required>
+        </div>
+        <div class="lembrar-me">
+            <input type="checkbox" /><a>Lembrar-me</a>
+        </div>
+        <button type="submit">Entrar</button>
+        <p class="esqueceu-senha">
+            Esqueceu sua senha? <a href="#" data-toggle="modal" data-target="#modalRecuperarSenha">Clique aqui!</a>
+            Não está registrado? <a href="{{ url_for('register_page') }}">Clique aqui!</a>
+        </p>
+    </form>
+</div>
+
+<!-- Modal para recuperação de senha -->
+<div class="modal fade" id="modalRecuperarSenha" tabindex="-1" role="dialog" aria-labelledby="modalRecuperarSenhaLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalRecuperarSenhaLabel">Recuperar Senha</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Fechar">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="recuperarSenhaForm">
+                    <div class="form-group">
+                        <label for="emailRecuperar">Email:</label>
+                        <input type="email" class="form-control" id="emailRecuperar" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="novaSenha">Nova Senha:</label>
+                        <input type="password" class="form-control" id="novaSenha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="confirmarSenha">Confirmar Nova Senha:</label>
+                        <input type="password" class="form-control" id="confirmarSenha" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Alterar Senha</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Envio do formulário de login via AJAX
+    $('#loginForm').submit(function(event) {
+        event.preventDefault();
+        const email = $('#email').val();
+        const senha = $('#senha').val();
+
+        $.ajax({
+            url: '/login',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ email, senha }),
+            success: function(response) {
+                alert(response.message);
+                if (response.message === 'Login realizado com sucesso!') {
+                    window.location.href = '{{ url_for("map") }}';
+                }
+            },
+            error: function(xhr) {
+                alert('Erro: ' + xhr.responseJSON.message);
+            }
+        });
+    });
+
+    // Envio do formulário de recuperação de senha via AJAX
+    $('#recuperarSenhaForm').submit(function(event) {
+        event.preventDefault();
+        const emailRecuperar = $('#emailRecuperar').val();
+        const novaSenha = $('#novaSenha').val();
+        const confirmarSenha = $('#confirmarSenha').val();
+
+        if (novaSenha !== confirmarSenha) {
+            alert('As senhas não coincidem!');
+            return;
+        }
+
+        $.ajax({
+            url: '/recuperar_senha',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ email: emailRecuperar, senha: novaSenha }),
+            success: function(response) {
+                alert(response.message);
+                $('#modalRecuperarSenha').modal('hide'); // Fecha o modal após sucesso
+            },
+            error: function(xhr) {
+                alert('Erro: ' + xhr.responseJSON.message);
+            }
+        });
+    });
+</script>
+{% endblock %}

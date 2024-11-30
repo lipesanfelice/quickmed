@@ -1,0 +1,133 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: "Comic Sans MS";
+    color: #404040;
+    display: flex;
+    flex-direction: column; /* Muda a direção para coluna */
+    height: 100vh;
+    /* justify-content: center;
+    align-items: center; */
+    background-color: brown;
+    background-image: url(fundo-verde.png);
+    background-size: cover;
+    background-position: 50%;
+  }
+  
+  .navbar {
+    background-color: #fff; /* Cor da navbar */
+    padding: 10px; /* Espaçamento interno */
+    position: sticky; /* Fixa a navbar no topo */
+    top: 0; /* Fixa no topo */
+    width: 100%; /* Largura total */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Sombra para efeito visual */
+  }
+  
+  .container {
+    flex: 1; /* Ocupar o espaço restante */
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+  }
+  
+  form {
+    padding: 50px;
+    background-color: white;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+    max-width: 400px; 
+  }
+  
+  h1 {
+    font-size: 24px;
+  }
+  
+  .barra-horizontal {
+    background-color: #f87842;
+    height: 5px;
+    width: 210px;
+  }
+  
+  .campo-input {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .titulo {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  button {
+    padding: 10px;
+    align-self: center;
+    width: 160px;
+    border-radius: 30px;
+    background-image: linear-gradient(#256a8a, #3393c1);
+    border: solid 1px #256a8a;
+    border-right-width: 4px;
+    border-bottom-width: 4px;
+    font-size: 16px;
+    color: white;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  
+  input {
+    padding: 10px 20px;
+    border-radius: 10px;
+    border: none;
+    background-color: #f1f1f1;
+  }
+  
+  a {
+    color: rgb(0, 174, 255);
+    font-weight: 500;
+  }
+  
+  .lembrar-me {
+    display: flex;
+    gap: 5px;
+  }
+  
+  .esqueceu-senha {
+    text-align: center;
+  }
+  
+  .star-rating {
+    display: flex;
+    gap: 5px;
+    cursor: pointer;
+  }
+  
+  .star-rating span {
+    font-size: 30px;
+    color: gray; /* Estrelas cinzas */
+    transition: color 0.3s;
+  }
+  
+  .star-rating span.selected,
+  .star-rating span:hover,
+  .star-rating span:hover ~ span {
+    color: gold; /* Estrelas amarelas quando selecionadas ou em hover */
+  }
+  
+  .hidden {
+    display: none;
+  }
+
+  .logout-link {
+    color: red !important;
+}
+
+  
+  
