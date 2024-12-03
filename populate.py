@@ -17,8 +17,8 @@ df['LONGITUDE'] = df['LONGITUDE'].astype(float)
 # Establish a connection to the MySQL database
 conn = mysql.connector.connect(
     host="localhost",
-    user="admin",
-    password="Chico2704",
+    user="root",
+    password="Chico2704$",
     database="quickmed"
 )
 

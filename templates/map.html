@@ -175,12 +175,42 @@
 
     <script>
         $(document).ready(function() {
-            var map = L.map('map').setView([-29.6843, -53.8006], 13);
+            // Inicializa o mapa sem localização definida inicialmente
+            var map = L.map('map');
         
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
+        
+            // Tenta acessar a localização do usuário
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    function(position) {
+                        // Localização obtida com sucesso
+                        var userLat = position.coords.latitude;
+                        var userLng = position.coords.longitude;
+        
+                        // Define a visualização inicial do mapa para a localização do usuário
+                        map.setView([userLat, userLng], 13);
+        
+                        // Opcional: Adiciona um marcador para indicar a localização do usuário
+                        L.marker([userLat, userLng]).addTo(map).bindPopup('Você está aqui!').openPopup();
+                    },
+                    function(error) {
+                        // Caso o usuário negue ou ocorra um erro
+                        console.error('Erro ao acessar a geolocalização:', error.message);
+                        alert('Não foi possível obter sua localização. O mapa será exibido na localização padrão.');
+        
+                        // Define uma localização padrão
+                        map.setView([-29.6843, -53.8006], 13);
+                    }
+                );
+            } else {
+                // Caso o navegador não suporte a API de Geolocalização
+                console.warn('Geolocalização não suportada pelo navegador.');
+                map.setView([-29.6843, -53.8006], 13);
+            }
         
             function loadClinicas() {
                 $.get('/add_clinicas')
@@ -207,11 +237,11 @@
             function realizarPesquisa() {
                 var query = $('#searchInput').val();
                 if (!query) return;
-
+        
                 L.Control.geocoder().options.geocoder.geocode(query, function(results) {
                     var resultsContainer = $('#geocoderResults');
                     resultsContainer.empty().show();
-
+        
                     results.forEach(function(result) {
                         var item = $('<li></li>').text(result.name);
                         item.on('click', function() {
@@ -225,15 +255,15 @@
                     });
                 });
             }
-
+        
             $('.geocoder-icon').on('click', realizarPesquisa);
             $('#searchInput').on('keypress', function(e) {
                 if (e.which === 13) {
                     realizarPesquisa();
                 }
             });
-
+        
             loadClinicas();
-        });
+        });        
     </script>
 {% endblock %}

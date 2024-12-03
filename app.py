@@ -97,8 +97,38 @@ def get_clinicas():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route('/api/clinica/<int:clinica_id>', methods=['GET'])
+@login_required
+def get_clinica_by_id(clinica_id):
+    try:
+        # Busca a clínica pelo ID e verifica se está associada ao usuário atual
+        clinica = Clinica.query.filter_by(id=clinica_id).first()
+
+        if not clinica:
+            return jsonify({"error": "Clínica não encontrada ou não autorizada"}), 404
+
+        result = {
+            'id': clinica.id,
+            'nome': clinica.nome,
+            'descricao': clinica.descricao,
+            'telefone': clinica.telefone,
+            'latitude': float(clinica.latitude),
+            'longitude': float(clinica.longitude),
+            'email': clinica.email,
+            'endereco': clinica.endereco,
+            'tipo': clinica.tipo,
+            'horario': clinica.horario,
+            'avaliacao': float(clinica.avaliacao) if clinica.avaliacao else None,
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 ##Carrega as clínicas associados ao usuário
-@app.route('/api/clinicas', methods=['GET'])
+@app.route('/api/clinicas/', methods=['GET'])
 @login_required
 def api_clinicas():
     try:
@@ -134,7 +164,7 @@ def logout():
 
 
 #não sei se devia estar aqui, mas essa função serve para editar a clinica
-@app.route('/edit-user_clinics', methods=['PUT'])
+@app.route('/edit-user_clinics', methods=['POST'])
 @login_required
 def edit_clinica_bd():
     data = request.json
@@ -149,11 +179,7 @@ def edit_clinica_bd():
     clinica.telefone = data.get('telefone', clinica.telefone)
     clinica.email = data.get('email', clinica.email)
     clinica.endereco = data.get('endereco', clinica.endereco)
-    clinica.latitude = data.get('latitude', clinica.latitude)
-    clinica.longitude = data.get('longitude', clinica.longitude)
     clinica.tipo = data.get('tipo', clinica.tipo)
-    clinica.avaliacao = data.get('avaliacao', clinica.avaliacao)
-    clinica.horario = data.get('horario', clinica.horario)
     
     try:
         # Realizar o commit das alterações
@@ -163,6 +189,37 @@ def edit_clinica_bd():
         # Reverter as alterações em caso de erro
         db.session.rollback()
         return jsonify({"message": "Erro ao atualizar informações", "error": str(e)}), 500
+
+
+@app.route('/delete-user_clinics', methods=['POST'])
+@login_required
+def delete_user_clinic():
+
+    # Obter o ID da clínica a partir dos dados da requisição
+    data = request.get_json()
+    clinic_id = data.get('id')
+
+    if not clinic_id:
+        return jsonify({"error": "ID da clínica não fornecido."}), 400
+    
+    # Verificar se a clínica pertence ao usuário atual
+    clinic_user = Clinica_Usuario.query.filter_by(
+        id_usuario=current_user.id, 
+        id_clinica=clinic_id
+    ).first()
+
+    if not clinic_user:
+        return jsonify({"error": "Clínica não encontrada ou você não tem permissão para deletá-la."}), 404
+
+    try:
+        # Remover a associação entre o usuário e a clínica
+        db.session.delete(clinic_user)
+        db.session.commit()
+
+        return jsonify({"message": "Clínica deletada com sucesso."}), 200
+
+    except Exception as e:
+        return jsonify({"message": f"Erro ao deletar clínica: {str(e)}"}), 500
 
 # Função para adicionar uma clínica ao banco (Blueprint)
 @app.route('/clinicas', methods=['POST'])

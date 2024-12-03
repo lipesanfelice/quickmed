@@ -1,14 +1,22 @@
 {% extends 'base.html' %}
 
-{% block title %}Minhass Clínicas{% endblock %}
+{% block title %}Minhas Clínicas{% endblock %}
 
 {% block content %}
 <style>
-    #clinicas-table {
-        width: 100%;
+    #minhas-clinicas-container {
         max-width: 1200px;
         margin: 0 auto;
+        padding: 30px;
+        background-color: #ffffff;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    #clinicas-table {
+        width: 100%;
         border-collapse: collapse;
+        margin-top: 20px;
         box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
     }
 
@@ -23,10 +31,10 @@
     }
 
     #clinicas-table td:last-child {
-        display: flex;
+        display: fixed;
         gap: 10px;
     }
-
+    
     .btn {
         padding: 5px 10px;
         text-decoration: none;
@@ -34,23 +42,20 @@
         border-radius: 5px;
         text-align: center;
     }
-    
-    .botao-editar {
-        padding: 8px 16px;
-        border-radius: 20px;
-        background-image: linear-gradient(#256a8a, #3393c1);
-        border: solid 1px #256a8a;
-        font-size: 14px;
-        color: white;
-        font-weight: bold;
-        align-self: center;
-        cursor: pointer;
-        text-align: center;
-        margin-top: 20px;
+
+    .btn-edit {
+        background-color: #007bff;
     }
 
-    /* Estilo do modal */
-    #editModal {
+    .btn-delete {
+        background-color: #007bff;
+    }
+
+    .btn-cancelar{
+        background-color: #007bff;
+    }
+
+    #editModal, #deleteModal {
         display: none;
         position: fixed;
         top: 0;
@@ -74,231 +79,202 @@
         gap: 20px;
     }
 
-    #modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
     #modal-form-content {
         display: grid;
-        grid-template-columns: repeat(3, 1fr); /* Duas colunas */
-        gap: 30px;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
     }
 
     .campo-input {
         display: flex;
         flex-direction: column;
-        gap: 5px; /* Reduz o espaço entre o rótulo e o campo */
-    }
-
-    .btn-edit {
-        background-color: #007bff;
-    }
-
-    .btn-delete {
-        background-color: #dc3545;
+        gap: 5px;
     }
 </style>
 
-<h1>Minhas Clínicas</h1>
+<div id="minhas-clinicas-container">
+    <h1>Minhas Clínicas</h1>
+    <table id="clinicas-table">
+        <thead>
+            <tr>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Telefone</th>
+                <th>Email</th>
+                <th>Endereço</th>
+                <th>Tipo</th>
+                <th>Avaliação</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Dados das clínicas serão inseridos aqui via JavaScript -->
+        </tbody>
+    </table>
 
-<table id="clinicas-table">
-    <thead>
-        <tr>
-            <th>Nome</th>
-            <th>Descrição</th>
-            <th>Telefone</th>
-            <th>Email</th>
-            <th>Endereço</th>
-            <th>Tipo</th>
-            <th>Avaliação</th>
-            <th>Ações</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- As clínicas serão inseridas aqui via JavaScript -->
-    </tbody>
-</table>
-<!-- Modal de Edição -->
-<div id="editModal" class="modal">
-    <div class="modal-content">
-        <span class="close" onclick="$('#editModal').hide()">&times;</span>
-        <h2>Editar Clínica</h2>
-        <form id="edit-form">
-            <div id="modal-form-content">
-                <div class="campo-input">
-                <input type="hidden" id="clinica-id">
+    <!-- Modal de Edição -->
+    <div id="editModal" class="modal">
+        <div id="modal-content">
+            <span class="close" onclick="$('#editModal').hide()">&times;</span>
+            <h2>Editar Clínica</h2>
+            <form id="edit-form">
+                <div id="modal-form-content">
+                    <div class="campo-input">
+                        <label for="nome">Nome:</label>
+                        <input type="text" id="nome" required />
+                    </div>
+                    <div class="campo-input">
+                        <label for="descricao">Descrição:</label>
+                        <textarea id="descricao"></textarea>
+                    </div>
+                    <div class="campo-input">
+                        <label for="telefone">Telefone:</label>
+                        <input type="text" id="telefone" />
+                    </div>
+                    <div class="campo-input">
+                        <label for="emailClinica">Email:</label>
+                        <input type="email" id="emailClinica" />
+                    </div>
+                    <div class="campo-input">
+                        <label for="endereco">Endereço:</label>
+                        <input type="text" id="endereco" />
+                    </div>
+                    <div class="campo-input">
+                        <label for="tipo">Tipo:</label>
+                        <select id="tipo">
+                            <option value="veterinário">Veterinário</option>
+                            <option value="médico">Médico</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="campo-input">
-                    <label for="nome">Nome:</label>
-                    <input type="text" id="nome">
+                <div style="text-align: center;">
+                    <button type="submit" class="btn btn-edit">Salvar</button>
                 </div>
-                
-                <div class="campo-input">
-                    <label for="descricao">Descrição:</label>
-                    <textarea id="descricao"></textarea>
-                </div>
+            </form>
+        </div>
+    </div>
 
-                <div class="campo-input">
-                    <label for="telefone">Telefone:</label>
-                    <input type="text" id="telefone">
-                </div>
-                
-                <div class="campo-input">
-                    <label for="emailClinica">Email:</label>
-                    <input type="email" id="emailClinica" />
-                </div>
-                
-                <div class="campo-input">
-                    <label for="endereco">Endereço:</label>
-                    <input type="text" id="endereco" />
-                </div>
-
-                <div class="campo-input">
-                    <label for="horario">Horário de Funcionamento:</label>
-                    <input type="text" id="horario" />
-                </div>
-                
-                <div class="campo-input">
-                    <label for="latitude">Latitude:</label>
-                    <input type="number" id="latitude"  min="-90" max="90" step="0.0000001" />
-                </div>
-
-                <div class="campo-input">
-                    <label for="longitude">Longitude:</label>
-                    <input type="number" id="longitude" min="-180" max="180" step="0.0000001" />
-                </div>
-                    
-                <div class="campo-input">
-                    <label for="tipo">Tipo:</label>
-                    <select id="tipo">
-                        <option value="veterinário">Veterinário</option>
-                        <option value="médico">Médico</option>
-                    </select>
-                </div>
-            </div>
-            <!-- Adicione mais campos conforme necessário -->
-            <div style="text-align: center;">
-                <button type="submit">Salvar</button>
-            </div>
-        </form>
+    <!-- Modal de Confirmação de Exclusão -->
+    <div id="deleteModal" class="modal">
+        <div id="modal-content">
+            <span class="close" onclick="$('#deleteModal').hide()">&times;</span>
+            <h2>Confirmar Exclusão</h2>
+            <p>Tem certeza de que deseja excluir esta clínica?</p>
+            <button id="confirm-delete" class="btn btn-cancelar">Deletar</button>
+            <button onclick="$('#deleteModal').hide()" class="btn btn-cancelar">Cancelar</button>
+        </div>
     </div>
 </div>
-
-<!-- Modal de Confirmação de Exclusão -->
-<div id="deleteModal" class="modal" style="display:none;">
-    <div class="modal-content">
-        <span class="close" onclick="$('#deleteModal').hide()">&times;</span>
-        <h2>Confirmar Exclusão</h2>
-        <p>Tem certeza de que deseja excluir esta clínica?</p>
-        <button id="confirm-delete">Deletar</button>
-        <button onclick="$('#deleteModal').hide()">Cancelar</button>
-    </div>
-</div>
-
-
 {% endblock %}
 
 {% block scripts %}
 <script>
-let clinicaId = null; // Variável global para armazenar o ID da clínica
+// Scripts para carregar, editar e deletar as clínicas
+    $(document).ready(function() {
+        // Carregar as clínicas
+        function carregarClinicas() {
+            $.get('/api/clinicas', function(clinicas) {
+                const tbody = $('#clinicas-table tbody');
+                tbody.empty();
+                clinicas.forEach(clinica => {
+                    tbody.append(`
+                        <tr>
+                            <td>${clinica.nome}</td>
+                            <td>${clinica.descricao}</td>
+                            <td>${clinica.telefone}</td>
+                            <td>${clinica.email}</td>
+                            <td>${clinica.endereco}</td>
+                            <td>${clinica.tipo}</td>
+                            <td>${clinica.avaliacao || 'N/A'}</td>
+                            <td>
+                                <button class="btn btn-edit" data-id="${clinica.id}">Editar</button>
+                                <button class="btn btn-delete" data-id="${clinica.id}">Deletar</button>
+                            </td>
+                        </tr>
+                    `);
+                });
+            });
+        }
 
-    function abrirModalDeletar(clinica){
+        carregarClinicas();
+    });
 
-    }
-
-    //Modal de edição da clinica
-    $('#editModal').submit(function(event) {
+    $('#edit-form').submit(function (event) {
         event.preventDefault(); // Evita a atualização da página
-    
+
         // Coleta os dados do formulário
         const data = {
+            id: $(this).data('clinica-id'),
             nome: $('#nome').val(),
             descricao: $('#descricao').val(),
             telefone: $('#telefone').val(),
             email: $('#emailClinica').val(),
             endereco: $('#endereco').val(),
-            latitude: $('#latitude').val(),
-            longitude: $('#longitude').val(),
             tipo: $('#tipo').val(),
-            avaliacao: $('#avaliacao').val(),
-            horario: $('#horario').val()
         };
-    
+
         // Envia os dados usando AJAX
         $.ajax({
-            url: '/edit-user_clinics',  // URL correta para envio
+            url: '/edit-user_clinics',
             type: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(data),
-            success: function(response) {
-                alert(response.message);
-                $('#editModal').hide();
-                carregarClinicas();
+            success: function (response) {
+                alert(response.message); // Exibe a mensagem de sucesso
+                window.location.href = '{{ url_for("user_clinicas") }}'; // Redireciona para o mapa
             },
-            error: function(xhr) {
+            error: function (xhr) {
                 alert('Erro ao editar clínica!'); // Exibe mensagem de erro
             }
         });
+    }); 
+
+    $(document).on('click', '.btn-edit', function() {
+        const id = $(this).data('id');
+        abrirModalEditar(id);
     });
 
-    //Carrega junto com a página
-    $(document).ready(function() {
-        // Função para carregar as clínicas
-        function carregarClinicas() {
-            $.get('/api/clinicas')  // Chama a rota da API para buscar as clínicas
-                .done(function(clinicas) {
-                    var tbody = $('#clinicas-table tbody');
-                    tbody.empty();  // Limpa a tabela antes de preencher
+    // Função para abrir o modal de edição
+    function abrirModalEditar(id) {
+        const editModal = document.getElementById('editModal');
+        editModal.style.display = 'flex'; // Exibe o modal
+        $('#edit-form').data('clinica-id', id);
+        $.get(`/api/clinica/${id}`, function(clinica) {
+            $('#nome').val(clinica.nome);
+            $('#descricao').val(clinica.descricao);
+            $('#telefone').val(clinica.telefone);
+            $('#emailClinica').val(clinica.email);
+            $('#endereco').val(clinica.endereco);
+            $('#tipo').val(clinica.tipo);
+        });
+        
+    }
 
-                    clinicas.forEach(function(clinica) {
-                        // Cria uma nova linha para cada clínica
-                        var row = '<tr>' +
-                            '<td>' + clinica.nome + '</td>' +
-                            '<td>' + clinica.descricao + '</td>' +
-                            '<td>' + clinica.telefone + '</td>' +
-                            '<td>' + clinica.email + '</td>' +
-                            '<td>' + clinica.endereco + '</td>' +
-                            '<td>' + clinica.tipo + '</td>' +
-                            '<td>' + (clinica.avaliacao || 'N/A') + '</td>' +
-                            '<td>' +
-                                '<button id="btn-edit" class="btn btn-edit">Editar</button>' +
-                                '<button id="btn-delete" class="btn btn-delete" onclick="abrirModalDeletar(${clinica.id})">Deletar</button>' +
-                            '</td>' +
-                        '</tr>';
-                        tbody.append(row);  // Adiciona a nova linha na tabela
-                        // Adiciona o evento de clique para o botão "Editar"
-                        $('#btn-edit').last().click(function() {
-                            abrirModalEditar(clinica); // Passa o objeto clinica para a função
-                        });
-                    });
-                })
-                .fail(function(jqXHR, textStatus, errorThrown) {
-                    console.error('Erro ao carregar clínicas:', textStatus, errorThrown);
-                    alert('Erro ao carregar clínicas: ' + errorThrown);
-                });
-        }
-
-        // Carrega as clínicas assim que a página for carregada
-        carregarClinicas();
+    $(document).on('click', '.btn-delete', function() {
+        const id = $(this).data('id');
+        abrirModalDeletar(id);
     });
 
-    // Abrir o modal de edição e carregar os dados da clínica selecionada
-    function abrirModalEditar(clinica) {
-        $('#clinica-id').val(clinica.id);
-        $('#nome').val(clinica.nome);
-        $('#descricao').val(clinica.descricao);
-        $('#telefone').val(clinica.telefone),
-        $('#emailClinica').val(clinica.email),
-        $('#endereco').val(clinica.endereco),
-        $('#latitude').val(clinica.latitude),
-        $('#longitude').val(clinica.longitude),
-        $('#tipo').val(clinica.tipo),
-        $('#avaliacao').val(clinica.avaliacao),
-        $('#horario').val(clinica.horario)
-        //document.getElementById('editModal').style.display = 'flex'
-        $('#editModal').show(); // Mostrar o modal
+    // Função para abrir o modal de exclusão
+    function abrirModalDeletar(id) {
+        const deleteModal = document.getElementById('deleteModal');
+        deleteModal.style.display = 'flex'; // Exibe o modal
+        $('#confirm-delete').off('click').click(function() {
+            const data = {
+                id: id,
+            };
+
+            $.ajax({
+                url: `/delete-user_clinics`,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(data),
+                success: function() {
+                    $('#deleteModal').hide();
+                    window.location.href = '{{ url_for("user_clinicas") }}'; // Redireciona para o mapa
+                }
+            });
+        });
     }
 
 </script>
