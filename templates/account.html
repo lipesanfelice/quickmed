@@ -48,7 +48,7 @@
     }
 
     /* Estilo do modal */
-    #modal-editar {
+    #modal-editar, #modal-ficha,#modal-ficha-editar {
         display: none;
         position: fixed;
         top: 0;
@@ -63,6 +63,8 @@
     #modal-content {
         width: 100%;
         max-width: 800px;
+        max-height: 80vh; /* Define a altura máxima como 80% da altura da janela */
+        overflow-y: auto;
         padding: 20px;
         background-color: #ffffff;
         border-radius: 10px;
@@ -84,10 +86,32 @@
         gap: 30px;
     }
 
+    #modal-ficha-form-content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .modal-scrollable-content {
+        max-height: 100%;
+    }
+
     .campo-input {
         display: flex;
         flex-direction: column;
-        gap: 5px; /* Reduz o espaço entre o rótulo e o campo */
+        gap: 5px; 
+    }
+
+    .campo-info textarea,
+    .campo-info select {
+        width: 80%; 
+        box-sizing: border-box; 
+        resize: none; 
+        padding: 8px; 
+        border: 1px solid #ccc;
+        border-radius: 4px; 
+        font-size: 14px; 
+        line-height: 1.5;
     }
 
     .close-btn {
@@ -135,6 +159,7 @@
     </div>
 
     <button id="editar-btn" class="botao-editar" onclick="abrirModal()">Editar Informações</button>
+    <button id="ficha-btn" class="botao-editar" onclick="abrirModal()">Informações de ficha</button>
     <a href="{{ url_for('user_clinicas') }}">
         <button id="clinicas-btn" class="botao-clinicas">Clinicas do Unuário</button>
     </a>
@@ -175,7 +200,7 @@
                 </div>
                 <div class="campo-input">
                     <label for="telefone">Telefone:</label>
-                    <input type="text" id="telefone" value="{{ usuario['telefone'] }}" />
+                <input type="text" id="telefone" value="{{ usuario['telefone'] or '' }}" />
                 </div>
                 <div class="campo-input">
                     <label for="endereco">Endereço:</label>
@@ -189,10 +214,179 @@
     </div>
 </div>
 
+<!-- Modal para editar informações -->
+<div id="modal-ficha">
+    <div id="modal-content">
+        <div id="modal-header">
+            <h3>Informações da Ficha</h3>
+            <h3>{{ usuario['nome'] or "Não informado" }} {{ usuario['sobrenome'] or "Não informado" }}</h3>
+            <button class="close-btn" onclick="fecharModalFicha()">×</button>
+        </div>
+        <div id="modals-ficha">
+            <div id="modal-content">
+                <div class="campo-info">
+                    <label>Tipo sanguineo:</label>
+                    <span id="tipo_sanguineo"></span>
+                </div>
+                <div class="campo-info">
+                    <label>Comorbidades:</label>
+                    <span id="comorbidades"></span>
+                </div>
+                <div class="campo-info">
+                    <label>Alergias:</label>
+                    <span id="alergias"></span>
+                </div>
+                <div class="campo-info">
+                    <label>Medicamentos:</label>
+                    <span id="medicamentos"></span>
+                </div>
+                <div class="campo-info">
+                    <label>Historico familiar:</label>
+                    <span id="historico_familiar"></span>
+                </div>
+                <div class="campo-info">
+                    <label>Observacoes:</label>
+                    <span id="observacoes"></span>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center;">
+            <button id="ficha-editar-btn" class="botao-editar" onclick="abrirModal()">Editar Informações</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar informações -->
+<div id="modal-ficha-editar">
+    <div id="modal-content">
+        <div id="modal-header">
+            <h3>Informações da Ficha</h3>
+            <h4>{{ usuario['nome'] or "Não informado" }} {{ usuario['sobrenome'] or "Não informado" }}</h4>
+            <button class="close-btn" onclick="fecharModalFichaEdit()">×</button>
+        </div>
+        <form id="form-ficha-editar" onsubmit="salvarFicha(event)">
+            <div class="modal-scrollable-content">
+                <div id="modal-ficha-form-content">
+                    <div class="campo-info">
+                        <label for="tipo_sanguineo">Tipo Sanguíneo:</label>
+                        <select id="tipo_sanguineo_ed">
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                    <div class="campo-info">
+                        <label for="comorbidades">Comorbidades:</label>
+                        <textarea id="comorbidades_ed" rows="3"></textarea>
+                    </div>
+                    <div class="campo-info">
+                        <label for="alergias">Alergias:</label>
+                        <textarea id="alergias_ed" rows="3"></textarea>
+                    </div>
+                    <div class="campo-info">
+                        <label for="medicamentos">Medicamentos:</label>
+                        <textarea id="medicamentos_ed" rows="3"></textarea>
+                    </div>
+                    <div class="campo-info">
+                        <label for="historico_familiar">Histórico Familiar:</label>
+                        <textarea id="historico_familiar_ed" rows="3"></textarea>
+                    </div>
+                    <div class="campo-info">
+                        <label for="observacoes">Observações:</label>
+                        <textarea id="observacoes_ed" rows="3"></textarea>
+                    </div>
+                </div>
+                <div style="text-align: center;">
+                    <button type="submit" class="botao-editar">Salvar Informações</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
 <script>
+    document.getElementById('ficha-btn').addEventListener('click', function() {
+        const id = $(this).data('id');
+        abrirModalFicha(id);
+    });
+    
+    function abrirModalFicha(id){
+        document.getElementById('modal-ficha').style.display = 'flex';
+        $('#modals-ficha').data('conta_id', id);
+        $.get(`/ficha`, function(ficha) {
+            $('#tipo_sanguineo').text(ficha.tipo_sanguineo || "Não informado");
+            $('#comorbidades').text(ficha.comorbidades || "Não informado");
+            $('#alergias').text(ficha.alergias || "Não informado");
+            $('#medicamentos').text(ficha.medicamentos || "Não informado");
+            $('#historico_familiar').text(ficha.historico_familiar || "Não informado");
+            $('#observacoes').text(ficha.observacoes || "Não informado");
+        });
+    }
+
+    // Fecha o modal de ficha e abre o modal de edição com os dados preenchidos
+    document.getElementById('ficha-editar-btn').addEventListener('click', function() {
+        // Fecha o modal de ficha
+        document.getElementById('modal-ficha').style.display = 'none';
+
+        // Preenche os campos do modal de edição com os valores exibidos no modal de ficha
+        $('#tipo_sanguineo_ed').val($('#tipo_sanguineo').text() || '');
+        $('#comorbidades_ed').val($('#comorbidades').text() || '');
+        $('#alergias_ed').val($('#alergias').text() || '');
+        $('#medicamentos_ed').val($('#medicamentos').text() || '');
+        $('#historico_familiar_ed').val($('#historico_familiar').text() || '');
+        $('#observacoes_ed').val($('#observacoes').text() || '');
+        
+        // Abre o modal de edição
+        document.getElementById('modal-ficha-editar').style.display = 'flex';
+    });
+
+    // Submete o formulário de edição
+    $('#form-ficha-editar').submit(function(event) {
+        event.preventDefault(); // Evita o comportamento padrão de envio do formulário
+
+        const data = {
+            tipo_sanguineo: $('#tipo_sanguineo_ed').val() || null,
+            comorbidades: $('#comorbidades_ed').val() || '',
+            alergias: $('#alergias_ed').val() || '',
+            medicamentos: $('#medicamentos_ed').val() || '',
+            historico_familiar: $('#historico_familiar_ed').val() || '',
+            observacoes: $('#observacoes_ed').val() || ''
+        };
+
+        $.ajax({
+            url: '/ficha/salvar',  // Rota para salvar as informações
+            type: 'POST',
+            contentType: 'application/json', // Define o tipo de conteúdo como JSON
+            data: JSON.stringify(data), // Serializa os dados como JSON
+            success: function(response) {
+                alert(response.message || "Informações salvas com sucesso!");
+                fecharModalFicha();
+                location.reload(); // Recarrega a página para refletir as alterações
+            },
+            error: function(xhr) {
+                alert('Erro ao salvar as informações! Por favor, tente novamente.');
+            }
+        });
+    });
+
+
+    // Fecha o modal
+    function fecharModalFichaEdit() {
+        document.getElementById('modal-ficha-editar').style.display = 'none';
+    }
+
+    // Fecha o modal
+    function fecharModalFicha() {
+        document.getElementById('modal-ficha').style.display = 'none';
+    }
+
     // Abre o modal
     document.getElementById('editar-btn').addEventListener('click', function() {
         document.getElementById('modal-editar').style.display = 'flex';
@@ -211,7 +405,7 @@
             nome: $('#nome').val(),
             sobrenome: $('#sobrenome').val(),
             email: $('#email').val(),
-            dataNascimento: $('#dataNascimento').val(),
+            dataNascimento: $('#dataNascimento').val() || null,
             genero: $('#genero').val(),
             telefone: $('#telefone').val(),
             endereco: $('#endereco').val()

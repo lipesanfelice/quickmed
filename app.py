@@ -96,6 +96,61 @@ def get_clinicas():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route('/ficha', methods=['GET'])
+@login_required
+def get_ficha_by_id():
+    try:
+        usuario = current_user
+        # Busca a clínica pelo ID e verifica se está associada ao usuário atual
+        ficha = Informacoes_Medicas.query.filter_by(id_usuario=usuario.id).first()
+
+        if not ficha:
+            return jsonify({"error": "Ficha não encontrada ou não autorizada"}), 404
+
+        result = {
+            'tipo_sanguineo': ficha.tipo_sanguineo,
+            'comorbidades': ficha.comorbidades,
+            'alergias': ficha.alergias,
+            'medicamentos': ficha.medicamentos,
+            'historico_familiar': ficha.historico_familiar,
+            'observacoes': ficha.observacoes,
+        }
+
+        return jsonify(result)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route('/ficha/salvar', methods=['POST'])
+@login_required
+def salvar_ficha():
+    data = request.json  # Recebe os dados no formato JSON
+    usuario = current_user  # Recupera o usuário autenticado
+
+    if not usuario:
+        return jsonify({"message": "Usuário não encontrado"}), 404
+
+    # Recupera ou cria o registro de informações médicas associado ao usuário
+    ficha = Informacoes_Medicas.query.filter_by(id_usuario=usuario.id).first()
+    if not ficha:
+        ficha = Informacoes_Medicas(id_usuario=usuario.id)
+        db.session.add(ficha)
+
+    # Atualiza os campos da ficha médica
+    ficha.tipo_sanguineo = data.get('tipo_sanguineo')
+    ficha.comorbidades = data.get('comorbidades')
+    ficha.alergias = data.get('alergias')
+    ficha.medicamentos = data.get('medicamentos')
+    ficha.historico_familiar = data.get('historico_familiar')
+    ficha.observacoes = data.get('observacoes')
+
+    try:
+        db.session.commit()  # Salva as alterações no banco de dados
+        return jsonify({"message": "Informações salvas com sucesso"}), 200
+    except Exception as e:
+        db.session.rollback()  # Reverte as alterações em caso de erro
+        return jsonify({"message": "Erro ao salvar informações", "error": str(e)}), 500
+
 
 @app.route('/api/clinica/<int:clinica_id>', methods=['GET'])
 @login_required

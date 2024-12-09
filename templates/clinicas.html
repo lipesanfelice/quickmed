@@ -104,87 +104,93 @@
 {% block scripts %}
 <script>
     // Inicializando o mapa com coordenadas padrão (caso a geolocalização falhe)
-    const map = L.map('map').setView([-27.5969, -48.5495], 13);
+    const mapa = L.map('map').setView([-27.5969, -48.5495], 13);
 
     // Adicionando o tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 19
-    }).addTo(map);
+    }).addTo(mapa);
 
     // Adicionando um marcador móvel ao mapa
-    const marker = L.marker([0, 0], { draggable: true }).addTo(map);
+    const marcador = L.marker([-27.5969, -48.5495], { draggable: true }).addTo(mapa);
 
-    // Atualiza os campos ocultos com a posição do marcador
-    function updateLatLng() {
-        const position = marker.getLatLng();
-        document.getElementById('latitude').value = position.lat;
-        document.getElementById('longitude').value = position.lng;
+    // Atualiza os campos de latitude e longitude com a posição do marcador
+    function atualizarLatLng() {
+        const posicao = marcador.getLatLng();
+        document.getElementById('latitude').value = posicao.lat.toFixed(6);
+        document.getElementById('longitude').value = posicao.lng.toFixed(6);
     }
 
     // Atualiza os campos ao mover o marcador
-    marker.on('dragend', updateLatLng);
+    marcador.on('dragend', atualizarLatLng);
 
-    // Função para centralizar o mapa na localização do usuário
+    // Função para centralizar o mapa na localização do usuário ou fallback
     function centralizarMapa(lat, lng) {
-        const zoomLevel = 13;
-        map.setView([lat, lng], zoomLevel);
-        marker.setLatLng([lat, lng]);
-        updateLatLng();
+        const nivelZoom = 13;
+        mapa.setView([lat, lng], nivelZoom);
+        marcador.setLatLng([lat, lng]);
+        atualizarLatLng();
     }
 
     // Utiliza a API de Geolocalização para obter a posição atual do usuário
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
+            (posicao) => {
+                const { latitude, longitude } = posicao.coords;
                 centralizarMapa(latitude, longitude);
             },
-            (error) => {
-                console.error('Erro ao obter localização do usuário:', error.message);
-                alert('Não foi possível obter sua localização. Verifique as permissões de geolocalização no navegador.');
+            (erro) => {
+                console.warn('Erro ao obter localização do usuário:', erro.message);
+                alert('Não foi possível acessar sua localização. Será usada uma posição padrão.');
+                atualizarLatLng(); // Fallback para valores padrão
             }
         );
     } else {
-        alert('Seu navegador não suporta geolocalização.');
+        alert('Seu navegador não suporta geolocalização. Usando coordenadas padrão.');
+        atualizarLatLng(); // Fallback para valores padrão
     }
 
-    // Preenchendo os campos inicialmente com valores padrão
-    updateLatLng();
+    // Atualiza os valores dos campos de latitude e longitude inicialmente
+    atualizarLatLng();
 
     // Submissão do formulário via AJAX
-    $('#adicionar-clinica-form').submit(function (event) {
-        event.preventDefault(); // Evita a atualização da página
+    document.getElementById('adicionar-clinica-form').addEventListener('submit', function (event) {
+        event.preventDefault(); // Impede o comportamento padrão do formulário
 
         // Coleta os dados do formulário
-        const data = {
-            nome: $('#nomeClinica').val(),
-            descricao: $('#descricao').val(),
-            telefone: $('#telefone').val(),
-            email: $('#emailClinica').val(),
-            endereco: $('#endereco').val(),
-            latitude: $('#latitude').val(),
-            longitude: $('#longitude').val(),
-            tipo: $('#tipo').val(),
-            avaliacao: $('#avaliacao').val(),
-            horario: $('#horario').val()
+        const dados = {
+            nome: document.getElementById('nomeClinica').value,
+            descricao: document.getElementById('descricao').value,
+            telefone: document.getElementById('telefone').value,
+            email: document.getElementById('emailClinica').value,
+            endereco: document.getElementById('endereco').value,
+            latitude: document.getElementById('latitude').value,
+            longitude: document.getElementById('longitude').value,
+            tipo: document.getElementById('tipo').value,
+            avaliacao: document.getElementById('avaliacao').value,
+            horario: document.getElementById('horario').value
         };
 
-        // Envia os dados usando AJAX
-        $.ajax({
-            url: '/clinicas',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify(data),
-            success: function (response) {
-                alert(response.message); // Exibe a mensagem de sucesso
-                window.location.href = '{{ url_for("map") }}'; // Redireciona para o mapa
+        // Envia os dados para o backend usando Fetch API
+        fetch('/clinicas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
             },
-            error: function (xhr) {
-                alert('Erro ao adicionar clínica!'); // Exibe mensagem de erro
-            }
+            body: JSON.stringify(dados)
+        })
+        .then((resposta) => resposta.json())
+        .then((dadosResposta) => {
+            alert(dadosResposta.message); // Exibe a mensagem de sucesso
+            window.location.href = '{{ url_for("map") }}'; // Redireciona para a página do mapa
+        })
+        .catch((erro) => {
+            console.error('Erro ao adicionar clínica:', erro);
+            alert('Erro ao adicionar clínica!');
         });
     });
 </script>
+
 {% endblock %}
 
 

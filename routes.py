@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_login import login_required, login_user, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-from models import db, Clinica, usuario
+from models import db, Clinica, usuario, Informacoes_Medicas
 
 routes_app = Blueprint('routes_app', __name__)
 
@@ -100,6 +100,18 @@ def register():
         email=data['email'],
         senha=data['senha'],
     )
-    db.session.add(novo_usuario)
-    db.session.commit()
-    return jsonify({'message': 'Usuário registrado com sucesso!'}), 201
+    try:
+        db.session.add(novo_usuario)
+        db.session.flush()
+        new_usuario = usuario.query.filter_by(email=data['email']).first()
+        ##União de usuário e clínica
+        usuario_info = Informacoes_Medicas(
+            id_usuario=new_usuario.id,
+        )
+        db.session.add(usuario_info)
+        db.session.commit()
+        return jsonify({'message': 'Usuário registrado com sucesso!'}), 201
+    except Exception as e:
+            db.session.rollback()
+            return jsonify({"message": "Erro ao adicionar clínica", "error": str(e)}), 500
+        

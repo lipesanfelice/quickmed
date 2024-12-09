@@ -5,7 +5,7 @@
   }
   
   body {
-    font-family: "Comic Sans MS";
+    font-family: "Roboto";
     color: #404040;
     display: flex;
     flex-direction: column; /* Muda a direção para coluna */

@@ -175,7 +175,6 @@
 
     <script>
         $(document).ready(function() {
-            // Inicializa o mapa sem localização definida inicialmente
             var map = L.map('map');
         
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -183,33 +182,47 @@
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             }).addTo(map);
         
-            // Tenta acessar a localização do usuário
+            // Função para definir a localização inicial do mapa
+            function definirLocalizacao(latitude, longitude, mensagem = 'Localização detectada!') {
+                map.setView([latitude, longitude], 13);
+                L.marker([latitude, longitude]).addTo(map).bindPopup(mensagem).openPopup();
+            }
+        
+            // Usa a API de Geolocalização por IP como fallback
+            function obterLocalizacaoPorIP() {
+                $.get('http://ip-api.com/json/')
+                    .done(function(response) {
+                        if (response.status === 'success') {
+                            definirLocalizacao(response.lat, response.lon, 'Sua localização aproximada com base no IP!');
+                        } else {
+                            console.error('Erro ao obter localização por IP:', response.message);
+                            definirLocalizacao(-29.6843, -53.8006, 'Localização padrão (Santa Maria).');
+                        }
+                    })
+                    .fail(function() {
+                        console.error('Erro ao acessar a API de geolocalização por IP.');
+                        definirLocalizacao(-29.6843, -53.8006, 'Localização padrão (Santa Maria).');
+                    });
+            }
+        
+            // Tenta usar a API de Geolocalização do navegador
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function(position) {
-                        // Localização obtida com sucesso
-                        var userLat = position.coords.latitude;
-                        var userLng = position.coords.longitude;
-        
-                        // Define a visualização inicial do mapa para a localização do usuário
-                        map.setView([userLat, userLng], 13);
-        
-                        // Opcional: Adiciona um marcador para indicar a localização do usuário
-                        L.marker([userLat, userLng]).addTo(map).bindPopup('Você está aqui!').openPopup();
+                        definirLocalizacao(
+                            position.coords.latitude,
+                            position.coords.longitude,
+                            'Você está aqui!'
+                        );
                     },
                     function(error) {
-                        // Caso o usuário negue ou ocorra um erro
-                        console.error('Erro ao acessar a geolocalização:', error.message);
-                        alert('Não foi possível obter sua localização. O mapa será exibido na localização padrão.');
-        
-                        // Define uma localização padrão
-                        map.setView([-29.6843, -53.8006], 13);
+                        console.warn('Erro na geolocalização do navegador:', error.message);
+                        obterLocalizacaoPorIP(); // Fallback para geolocalização por IP
                     }
                 );
             } else {
-                // Caso o navegador não suporte a API de Geolocalização
-                console.warn('Geolocalização não suportada pelo navegador.');
-                map.setView([-29.6843, -53.8006], 13);
+                console.warn('API de Geolocalização não suportada pelo navegador.');
+                obterLocalizacaoPorIP(); // Fallback para geolocalização por IP
             }
         
             function loadClinicas() {
@@ -243,7 +256,12 @@
                     resultsContainer.empty().show();
         
                     results.forEach(function(result) {
-                        var item = $('<li></li>').text(result.name);
+                        var parts = result.name.split(',');
+                        var truncatedName = parts.length > 2 
+                            ? parts.slice(0, 2).join(',')
+                            : result.name;
+        
+                        var item = $('<li></li>').text(truncatedName);
                         item.on('click', function() {
                             map.setView(result.center, 13);
                             L.marker(result.center).addTo(map)

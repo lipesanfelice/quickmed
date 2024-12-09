@@ -115,8 +115,7 @@
     <!-- Modal de Edição -->
     <div id="editModal" class="modal">
         <div id="modal-content">
-            <span class="close" onclick="$('#editModal').hide()">&times;</span>
-            <h2>Editar Clínica</h2>
+            <h2>Editar Clínica <span class="close" onclick="$('#editModal').hide()">&times;</span></h2>
             <form id="edit-form">
                 <div id="modal-form-content">
                     <div class="campo-input">
@@ -146,6 +145,7 @@
                             <option value="médico">Médico</option>
                         </select>
                     </div>
+
                 </div>
                 <div style="text-align: center;">
                     <button type="submit" class="btn btn-edit">Salvar</button>
@@ -157,11 +157,9 @@
     <!-- Modal de Confirmação de Exclusão -->
     <div id="deleteModal" class="modal">
         <div id="modal-content">
-            <span class="close" onclick="$('#deleteModal').hide()">&times;</span>
-            <h2>Confirmar Exclusão</h2>
+            <h2>Confirmar Exclusão <span class="close" onclick="$('#deleteModal').hide()">&times;</span></h2>
             <p>Tem certeza de que deseja excluir esta clínica?</p>
-            <button id="confirm-delete" class="btn btn-cancelar">Deletar</button>
-            <button onclick="$('#deleteModal').hide()" class="btn btn-cancelar">Cancelar</button>
+            <button id="confirm-delete" class="btn btn-cancelar">Deletar</button> <button onclick="$('#deleteModal').hide()" class="btn btn-cancelar">Cancelar</button>
         </div>
     </div>
 </div>
