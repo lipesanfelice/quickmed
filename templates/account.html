@@ -29,6 +29,17 @@
         border-bottom: 1px solid #ddd;
     }
 
+    .campo-info-ficha {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0px;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .campo-info-ficha label {
+        font-weight: bold;
+    }
+
     .campo-info label {
         font-weight: bold;
     }
@@ -88,7 +99,7 @@
 
     #modal-ficha-form-content {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 30px;
     }
 
@@ -96,15 +107,21 @@
         max-height: 100%;
     }
 
-    .campo-input {
-        display: flex;
-        flex-direction: column;
-        gap: 5px; 
-    }
-
     .campo-info textarea,
     .campo-info select {
-        width: 80%; 
+        width: 100%; 
+        box-sizing: border-box; 
+        resize: none; 
+        padding: 8px; 
+        border: 1px solid #ccc;
+        border-radius: 4px; 
+        font-size: 14px; 
+        line-height: 1.5;
+    }
+
+    .campo-info-ficha textarea,
+    .campo-info-ficha select {
+        width: 200px; 
         box-sizing: border-box; 
         resize: none; 
         padding: 8px; 
@@ -158,11 +175,13 @@
         </div>
     </div>
 
-    <button id="editar-btn" class="botao-editar" onclick="abrirModal()">Editar Informações</button>
-    <button id="ficha-btn" class="botao-editar" onclick="abrirModal()">Informações de ficha</button>
-    <a href="{{ url_for('user_clinicas') }}">
-        <button id="clinicas-btn" class="botao-clinicas">Clinicas do Unuário</button>
-    </a>
+    <div style="text-align: center;">
+        <button id="editar-btn" class="botao-editar" onclick="abrirModal()">Editar Informações</button>
+        <button id="ficha-btn" class="botao-editar" onclick="abrirModal()">Informações de ficha</button>
+        <a href="{{ url_for('user_clinicas') }}">
+            <button id="clinicas-btn" class="botao-clinicas">Clinicas do Usuário</button>
+        </a>
+    </div>    
 </div>
 
 <!-- Modal para editar informações -->
@@ -264,10 +283,10 @@
             <h4>{{ usuario['nome'] or "Não informado" }} {{ usuario['sobrenome'] or "Não informado" }}</h4>
             <button class="close-btn" onclick="fecharModalFichaEdit()">×</button>
         </div>
-        <form id="form-ficha-editar" onsubmit="salvarFicha(event)">
+        <form id="form-ficha-editar" onsubmit="salvarFicha(event)" style="text-align: center;">
             <div class="modal-scrollable-content">
                 <div id="modal-ficha-form-content">
-                    <div class="campo-info">
+                    <div class="campo-info-ficha">
                         <label for="tipo_sanguineo">Tipo Sanguíneo:</label>
                         <select id="tipo_sanguineo_ed">
                             <option value="A+">A+</option>
@@ -280,31 +299,33 @@
                             <option value="O-">O-</option>
                         </select>
                     </div>
-                    <div class="campo-info">
+                    <div class="campo-info-ficha">
                         <label for="comorbidades">Comorbidades:</label>
                         <textarea id="comorbidades_ed" rows="3"></textarea>
                     </div>
-                    <div class="campo-info">
+                    <div class="campo-info-ficha">
                         <label for="alergias">Alergias:</label>
                         <textarea id="alergias_ed" rows="3"></textarea>
                     </div>
-                    <div class="campo-info">
+                    <div class="campo-info-ficha">
                         <label for="medicamentos">Medicamentos:</label>
                         <textarea id="medicamentos_ed" rows="3"></textarea>
                     </div>
-                    <div class="campo-info">
+                    <div class="campo-info-ficha">
                         <label for="historico_familiar">Histórico Familiar:</label>
                         <textarea id="historico_familiar_ed" rows="3"></textarea>
                     </div>
-                    <div class="campo-info">
+                    <div class="campo-info-ficha">
                         <label for="observacoes">Observações:</label>
                         <textarea id="observacoes_ed" rows="3"></textarea>
                     </div>
+                    
                 </div>
+                
                 <div style="text-align: center;">
                     <button type="submit" class="botao-editar">Salvar Informações</button>
-                </div>
-            </div>
+                </div>  
+            </div> 
         </form>
     </div>
 </div>
