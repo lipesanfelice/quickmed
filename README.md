@@ -1,6 +1,6 @@
 # Projeto de Software 1 - Quickmed
 
-(Tela_site(2).png)
+![Imagem](Tela_site(2).png)
 
 #### Desenvolvedor(a)
 
